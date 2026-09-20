@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Mapperとxmlのマッピング -->
+<mapper namespace="my.service.repository.MUserMapper">
+
+    <insert id="insertOne">
+        INSERT INTO m_user (
+            id,
+            name,
+            mail_address,
+            role_name,
+            password
+        ) VALUES (
+            #{id},
+            #{name},
+            #{mailAddress},
+            #{roleName},
+            #{password}
+        )
+    </insert>
+
+    <select id="findOne" resultType="my.service.domain.model.MUser">
+        SELECT *
+          FROM m_user
+         WHERE id = #{id}
+    </select>
+
+    <select id="findMany" resultType="my.service.domain.model.MUser">
+        SELECT *
+          FROM m_user
+    </select>
+
+    <delete id="deleteOne">
+        DELETE FROM m_user
+         WHERE id = #{id}
+    </delete>
+
+    <update id="updatePassword">
+        UPDATE m_user
+           SET password = #{password}
+         WHERE id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Mapperとxmlのマッピング -->
+<mapper namespace="my.service.repository.TBookMapper">
+    <resultMap type="my.service.domain.model.TBook" id="book">
+        <id column="user_id" property="userId"/>
+        <id column="seq_no" property="seqNo"/>
+        <result column="author" property="author"/>
+        <result column="title" property="title"/>
+        <result column="buy_date" property="buyDate"/>
+        <result column="complete_date" property="completeDate"/>
+        <result column="genre_id" property="genreId"/>
+        <result column="img_url" property="imgUrl"/>
+        <result column="info_url" property="infoUrl"/>
+        <result column="memo" property="memo"/>
+        <result column="price" property="price"/>
+        <result column="published" property="published"/>
+        <result column="publisher" property="publisher"/>
+        <result column="rate" property="rate"/>
+        <association property="genre" resultMap="genre"/>
+    </resultMap>
+    
+    <resultMap type="my.service.domain.model.MGenre" id="genre">
+        <id column="id" property="id"/>
+        <id column="name" property="name"/>
+    </resultMap>
+
+    <select id="findMany" resultMap="book">
+        SELECT *
+            FROM t_book
+            LEFT JOIN m_genre
+                ON m_genre.id = t_book.genre_id
+        <where>
+            <if test="userId != null">
+                user_id = #{userId}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE '%' || #{title} || '%'
+            </if>
+            <if test="author != null and author != ''">
+                AND author LIKE '%' || #{author} || '%'
+            </if>
+            <if test="completeDateFrom != null and completeDateFrom != ''">
+                AND complete_date &gt;= TO_DATE(#{completeDateFrom}, 'YYYY-MM-DD')
+            </if>
+            <if test="completeDateTo != null and completeDateTo != ''">
+                AND complete_date &lt;= TO_DATE(#{completeDateTo}, 'YYYY-MM-DD')
+            </if>
+            <if test="genre != null and genre != 0">
+                AND genre_id = #{genre}
+            </if>
+            <if test="rate != null and rate != 0">
+                AND rate = #{rate}
+            </if>
+            <if test="unComplete == true">
+                AND complete_date IS NULL
+            </if>
+        </where>
+            ORDER BY buy_date DESC
+    </select>
+
+    <select id="getMaxSeqNo" resultType="java.lang.Integer">
+        SELECT MAX(seq_no)
+          FROM t_book
+         WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertOne">
+        INSERT INTO t_book (
+            user_id,
+            seq_no,
+            author,
+            title,
+            buy_date,
+            complete_date,
+            genre_id,
+            img_url,
+            info_url,
+            memo,
+            price,
+            published,
+            publisher,
+            rate
+        ) VALUES (
+            #{userId},
+            #{seqNo},
+            #{author},
+            #{title},
+            #{buyDate},
+            #{completeDate},
+            #{genreId},
+            #{imgUrl},
+            #{infoUrl},
+            #{memo},
+            #{price},
+            #{published},
+            #{publisher},
+            #{rate}
+        )
+    </insert>
+
+    <update id="updateOne">
+        UPDATE t_book
+           SET author = #{author},
+               title = #{title},
+               buy_date = #{buyDate},
+               complete_date = #{completeDate},
+               genre_id = #{genreId},
+               img_url = #{imgUrl},
+               info_url = #{infoUrl},
+               memo = #{memo},
+               price = #{price},
+               published = #{published},
+               publisher = #{publisher},
+               rate = #{rate}
+         WHERE user_id = #{userId}
+           AND seq_no = #{seqNo}
+    </update>
+
+    <delete id="deleteOne">
+        DELETE FROM t_book
+         WHERE user_id = #{userId}
+           AND seq_no = #{seqNo}
+    </delete>
+
+    <insert id="insertMany">
+        INSERT INTO t_book (
+            user_id, seq_no, author, title, buy_date, complete_date,
+            genre_id, img_url, info_url, memo, price, published, publisher, rate
+        ) VALUES
+        <foreach collection="list" item="book" separator=",">
+            (
+                #{book.userId}, #{book.seqNo}, #{book.author}, #{book.title},
+                #{book.buyDate}, #{book.completeDate}, #{book.genreId},
+                #{book.imgUrl}, #{book.infoUrl}, #{book.memo},
+                #{book.price}, #{book.published}, #{book.publisher}, #{book.rate}
+            )
+        </foreach>
+    </insert>
+</mapper>

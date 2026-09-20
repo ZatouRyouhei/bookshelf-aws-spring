@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Mapperとxmlのマッピング -->
+<mapper namespace="my.service.repository.MGenreMapper">
+    <select id="findMany" resultType="my.service.domain.model.MGenre">
+        SELECT *
+          FROM m_genre
+    </select>
+
+    <select id="findOne" resultType="my.service.domain.model.MGenre">
+        SELECT *
+          FROM m_genre
+          WHERE id = #{id}
+         ORDER BY id
+    </select>
+</mapper>

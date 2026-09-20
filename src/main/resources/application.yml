@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${aws.dsql.cluster-endpoint}:5432/postgres?sslmode=require&currentSchema=bookshelf
+    username: admin
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      # Aurora DSQLのIAM認証トークンの有効期限(既定15分)より短く設定し、
+      # 期限切れトークンで確立された接続が使い回されないようにする
+      max-lifetime: 840000
+  sql:
+    init:
+      encoding: UTF-8
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+mybatis:
+  mapper-locations: classpath*:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+aws:
+  dsql:
+    region: ap-northeast-1
+    cluster-endpoint: ${CLUSTER_ENDPOINT}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+app:
+  base-url: ${BASE_URL}
+  queue-url: ${QUEUE_URL}
+
+logging:
+  level:
+    '[my.service]': debug
