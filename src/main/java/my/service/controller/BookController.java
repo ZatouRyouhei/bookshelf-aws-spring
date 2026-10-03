@@ -145,7 +145,7 @@ public class BookController {
         try {
             byte[] excel = writeExcel(bookList);
 
-            String filename = "台帳.csv";
+            String filename = "台帳.xlsx";
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8"));
             headers.setContentDispositionFormData("attachment", filename);
@@ -294,13 +294,33 @@ public class BookController {
     private byte[] writeExcel(List<TBook> bookList) throws IOException {
         try (InputStream templateStream = getClass().getResourceAsStream("/template/template.xlsx")) { // 引数のパスの先頭にはスラッシュ(/)が必要
             if (templateStream == null) {
-                System.out.println("テンプレートファイルが見つかりません。src/main/resources/template/template.xlsx を確認してください。");
+                log.error("テンプレートファイルが見つかりません。src/main/resources/template/template.xlsx を確認してください。");
                 throw new IOException();
             }
             // テンプレートからワークブックを作成
             try (Workbook workbook = new XSSFWorkbook(templateStream)) {
                 // シート取得
                 Sheet sheet = workbook.getSheetAt(0);
+
+                // セルの枠線を設定する。
+                CellStyle cellStyle = workbook.createCellStyle();
+                cellStyle.setBorderLeft(BorderStyle.THIN);
+                cellStyle.setBorderRight(BorderStyle.THIN);
+                cellStyle.setBorderTop(BorderStyle.THIN);
+                cellStyle.setBorderBottom(BorderStyle.THIN);
+                // 上詰め
+                cellStyle.setVerticalAlignment(VerticalAlignment.TOP);
+                // 改行して表示
+                cellStyle.setWrapText(true);
+                // 日付用のセルスタイル
+                CellStyle dateCellStyle = workbook.createCellStyle();
+                dateCellStyle.cloneStyleFrom(cellStyle);
+                dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+                // 値段用のセルスタイル
+                CellStyle priceCellStyle = workbook.createCellStyle();
+                priceCellStyle.cloneStyleFrom(cellStyle);
+                priceCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
+
                 // リストから1行づつ取り出してセルに設定していく
                 for (int rowIndex = 2; rowIndex <= bookList.size() + 1; rowIndex++) {
                     // 行を生成
@@ -308,25 +328,6 @@ public class BookController {
                     if(row == null){
                         row = sheet.createRow(rowIndex);
                     }
-                    // セルの枠線を設定する。
-                    CellStyle cellStyle = workbook.createCellStyle();
-                    cellStyle.setBorderLeft(BorderStyle.THIN);
-                    cellStyle.setBorderRight(BorderStyle.THIN);
-                    cellStyle.setBorderTop(BorderStyle.THIN);
-                    cellStyle.setBorderBottom(BorderStyle.THIN);
-                    // 上詰め
-                    cellStyle.setVerticalAlignment(VerticalAlignment.TOP);
-                    // 改行して表示
-                    cellStyle.setWrapText(true);
-                    // 日付用のセルスタイル
-                    CellStyle dateCellStyle = workbook.createCellStyle();
-                    dateCellStyle.cloneStyleFrom(cellStyle);
-                    dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
-                    // 値段用のセルスタイル
-                    CellStyle priceCellStyle = workbook.createCellStyle();
-                    priceCellStyle.cloneStyleFrom(cellStyle);
-                    priceCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0"));
-
                     // セルに値を設定していく
                     TBook bookInfo = bookList.get(rowIndex - 2);
                     // No
