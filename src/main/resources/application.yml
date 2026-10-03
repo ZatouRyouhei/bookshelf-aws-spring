@@ -8,6 +8,11 @@ spring:
       # Aurora DSQLのIAM認証トークンの有効期限(既定15分)より短く設定し、
       # 期限切れトークンで確立された接続が使い回されないようにする
       max-lifetime: 840000
+      # SnapStartのスナップショットに接続を含めないための設定。
+      # スナップショット内の接続は復元後に無効になるため、アイドル接続を保持しない
+      minimum-idle: 0
+      # 起動時の接続失敗でプール初期化を失敗させない(-1で無効化)
+      initialization-fail-timeout: -1
   sql:
     init:
       encoding: UTF-8

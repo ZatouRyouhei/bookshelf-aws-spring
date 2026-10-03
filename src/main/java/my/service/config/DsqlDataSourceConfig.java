@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,7 +26,9 @@ public class DsqlDataSourceConfig {
 
     private static final Duration TOKEN_REFRESH_MARGIN = Duration.ofMinutes(5);
 
+    // 自前でDataSourceを生成しているため、hikari.*の設定を明示的にバインドする
     @Bean(destroyMethod = "close")
+    @ConfigurationProperties("spring.datasource.hikari")
     public HikariDataSource dataSource(
             @Value("${spring.datasource.url}") String jdbcUrl,
             @Value("${spring.datasource.username}") String username,
